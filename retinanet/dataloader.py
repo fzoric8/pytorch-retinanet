@@ -5,6 +5,7 @@ import torch
 import numpy as np
 import random
 import csv
+import cv2
 
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
@@ -296,6 +297,71 @@ class CSVDataset(Dataset):
     def image_aspect_ratio(self, image_index):
         image = Image.open(self.image_names[image_index])
         return float(image.width) / float(image.height)
+
+
+class MBZIRCDataset(Dataset):
+
+    def __init__(self, dataframe, image_dir, mode = "train", transforms=None):
+
+        super().__init__()
+        self.image_ids = dataframe['image_id'].unique()
+        self.df = dataframe
+        self.image_dir = image_dir 
+        self.mode = mode
+        self.transforms = transforms
+        self._num_classes = len(list(set(dataframe['id'])))
+
+    def __getitem__(self, index: int):
+
+        # Retriving image id and records from df
+        image_id = self.image_ids[index]
+        records = self.df[self.df['image_id'] == image_id]
+
+        # Loading img --> works now
+        image = cv2.imread(f'{self.image_dir}/images/{image_id}', cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
+        image /= 255
+
+        if self.mode == "train" or self.mode == "valid":
+
+            # Converting xmin, ymin, w, h to x1, y1, x2, y2
+            boxes = np.zeros((records.shape[0], 5))
+            boxes[:, 0:4] = records[['x', 'y', 'w', 'h']].values
+            boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
+            boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
+            boxes[:, 4] = 1 # This is for label, as we have only 1 class, it is always 1
+            
+            # Applying Transforms
+            sample = {'img': image, 'annot': boxes}
+                
+            if self.transforms:
+                sample = self.transforms(sample)
+
+            return sample
+        
+        elif self.mode == "test":
+            
+            # We just need to apply transoforms and return image
+            if self.transforms:
+                
+                sample = {'img' : image}
+                sample = self.transforms(sample)
+                
+            return sample
+        
+
+    def __len__(self) -> int:
+        return self.image_ids.shape[0]
+
+    def image_aspect_ratio(self, image_index):
+        
+        # Get from df aspect ratio!
+        # FIX THIS!
+        return 1
+
+    def num_classes(self):
+        return self._num_classes
+
 
 
 def collater(data):

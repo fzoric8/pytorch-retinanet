@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+
 import numpy as np
 
 
@@ -142,3 +143,4 @@ class ClipBoxes(nn.Module):
         boxes[:, :, 3] = torch.clamp(boxes[:, :, 3], max=height)
       
         return boxes
+

@@ -8,8 +8,9 @@ import torch.optim as optim
 from torchvision import transforms
 
 from retinanet import model
-from retinanet.dataloader import CocoDataset, CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
+from retinanet.dataloader import CocoDataset, CSVDataset, MBZIRCDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
     Normalizer
+from retinanet.data_utils import create_df
 from torch.utils.data import DataLoader
 
 from retinanet import coco_eval
@@ -23,11 +24,12 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 def main(args=None):
     parser = argparse.ArgumentParser(description='Simple training script for training a RetinaNet network.')
 
-    parser.add_argument('--dataset', help='Dataset type, must be one of csv or coco.')
+    parser.add_argument('--dataset', help='Dataset type, must be one of csv or coco or mbzirc')
     parser.add_argument('--coco_path', help='Path to COCO directory')
     parser.add_argument('--csv_train', help='Path to file containing training annotations (see readme)')
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
     parser.add_argument('--csv_val', help='Path to file containing validation annotations (optional, see readme)')
+    parser.add_argument('--mbzirc_path', help='Path to MBZIRC direcotry')
 
     parser.add_argument('--depth', help='Resnet depth, must be one of 18, 34, 50, 101, 152', type=int, default=50)
     parser.add_argument('--epochs', help='Number of epochs', type=int, default=100)
@@ -62,6 +64,14 @@ def main(args=None):
         else:
             dataset_val = CSVDataset(train_file=parser.csv_val, class_list=parser.csv_classes,
                                      transform=transforms.Compose([Normalizer(), Resizer()]))
+
+    elif parser.dataset == 'mbzirc':
+        train_df = create_df(parser.mbzirc_path, 'train/anots')
+        dataset_train = MBZIRCDataset(train_df, '{}/train'.format(parser.mbzirc_path), mode="train",
+                         transforms = transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
+        test_df = create_df(parser.mbzirc_path, 'test/anots')
+        dataset_val = MBZIRCDataset(test_df, '{}/test'.format(parser.mbzirc_path, mode="test", 
+                         transforms = transforms.Compose([Normalizer(), Augmenter(), Resizer()])))
 
     else:
         raise ValueError('Dataset type not understood (must be csv or coco), exiting.')
