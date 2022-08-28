@@ -175,6 +175,13 @@ bird,2
 - Significant amounts of code are borrowed from the [keras retinanet implementation](https://github.com/fizyr/keras-retinanet)
 - The NMS module used is from the [pytorch faster-rcnn implementation](https://github.com/ruotianluo/pytorch-faster-rcnn)
 
+## Run training with mbzirc data: 
+
+Run training with following cmd: 
+```
+python3 train.py --dataset mbzirc --mbzirc_path /home/developer/pytorch-retinanet/data
+```
+
 ## Examples
 
 ![img1](https://github.com/yhenon/pytorch-retinanet/blob/master/images/1.jpg)
