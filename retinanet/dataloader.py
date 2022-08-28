@@ -334,7 +334,7 @@ class MBZIRCDataset(Dataset):
             boxes[:, 0:4] = records[['x', 'y', 'w', 'h']].values
             boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
             boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
-            boxes[:, 4] = 1 # This is for label, as we have only 1 class, it is always 1
+            boxes[:, 4] = records[['id']].values
             
             # Applying Transforms
             sample = {'img': image, 'annot': boxes}
