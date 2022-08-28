@@ -181,6 +181,11 @@ Run training with following cmd:
 ```
 python3 train.py --dataset mbzirc --mbzirc_path /home/developer/pytorch-retinanet/data
 ```
+Run visualization with following cmd: 
+```
+ python3 visualize.py --dataset mbzirc --mbzirc_path /home/developer/pytorch-retinanet/data --model ./models/mbzirc_retinanet_30.pt ^C
+```
+
 
 ## Examples
 

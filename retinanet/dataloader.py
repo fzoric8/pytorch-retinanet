@@ -310,9 +310,11 @@ class MBZIRCDataset(Dataset):
         self.mode = mode
         self.transforms = transforms
         self._num_classes = len(list(set(dataframe['id'])))
-        self.labels = {'3': 'small_box',
-                       '4': 'big_box',
-                       '5': 'bigger_box'}
+        self.labels = {'1': 'LargeAmmoCanHandles', 
+                       '2': 'LargeCrateHandles', 
+                       '3': 'LargeDryBoxHandles',
+                       '4': 'SmallBlueBox', 
+                       '5': 'SmallDryBagHandle,'}
 
     def __getitem__(self, index: int):
 
