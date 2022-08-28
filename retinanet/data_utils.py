@@ -73,4 +73,44 @@ def create_df(path, folder):
             #display(df_all)
     
     return df_all
+
+
+"""
+font = cv2.FONT_HERSHEY_SIMPLEX
+fontScale = 0.8
+color = (255, 0, 0)
+thickness = 2
+
+
+def plot_img(df, image_name):
+    
+    fig, ax = plt.subplots(1, 2, figsize = (10, 10))
+    ax = ax.flatten()
+    records = df[df['image_id'] == image_name]
+    img_path = os.path.join(os.getcwd(), DIR_TRAIN, image_name)
+
+    image = cv2.imread(img_path, cv2.IMREAD_COLOR)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
+    image /= 255.0
+    image2 = image
+    
+    ax[0].set_title('Original Image')
+    ax[0].imshow(image)
+    
+    for idx, row in records.iterrows():
+        box = row[['x', 'y', 'w', 'h']].values
+        class_id = row['id']
+        xmin = box[0]
+        ymin = box[1]
+        width = box[2]
+        height = box[3]
+        
+        cv2.rectangle(image2, (int(xmin),int(ymin)), (int(xmin + width),int(ymin + height)), (255,0,0), 5)
+        cv2.putText(image, 'id: {}'.format(class_id), (xmin-3, ymin-3), font, fontScale, color, thickness)
+    
+    ax[1].set_title('Image with Boundary Box')
+    ax[1].imshow(image2)
+
+    plt.show()
                             
+"""

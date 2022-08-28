@@ -14,9 +14,10 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, models, transforms
 
-from retinanet.dataloader import CocoDataset, CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
+from retinanet.dataloader import CocoDataset, CSVDataset, MBZIRCDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
 	UnNormalizer, Normalizer
 
+from retinanet.data_utils import create_df
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -28,6 +29,7 @@ def main(args=None):
 
 	parser.add_argument('--dataset', help='Dataset type, must be one of csv or coco.')
 	parser.add_argument('--coco_path', help='Path to COCO directory')
+	parser.add_argument('--mbzirc_path', help='Path to MBZIRC data')
 	parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
 	parser.add_argument('--csv_val', help='Path to file containing validation annotations (optional, see readme)')
 
@@ -39,6 +41,10 @@ def main(args=None):
 		dataset_val = CocoDataset(parser.coco_path, set_name='train2017', transform=transforms.Compose([Normalizer(), Resizer()]))
 	elif parser.dataset == 'csv':
 		dataset_val = CSVDataset(train_file=parser.csv_train, class_list=parser.csv_classes, transform=transforms.Compose([Normalizer(), Resizer()]))
+	elif parser.dataset == 'mbzirc': 
+		test_df = create_df(parser.mbzirc_path, 'test/anots')
+		dataset_val = MBZIRCDataset(test_df, '{}/test'.format(parser.mbzirc_path), mode="train",
+		                            transforms = transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
 	else:
 		raise ValueError('Dataset type not understood (must be csv or coco), exiting.')
 
@@ -93,7 +99,8 @@ def main(args=None):
 				y1 = int(bbox[1])
 				x2 = int(bbox[2])
 				y2 = int(bbox[3])
-				label_name = dataset_val.labels[int(classification[idxs[0][j]])]
+				label_name = str(int(classification[idxs[0][j]]))
+				#label_name = dataset_val.labels[int(classification[idxs[0][j]])]
 				draw_caption(img, (x1, y1, x2, y2), label_name)
 
 				cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)

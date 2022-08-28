@@ -32,7 +32,7 @@ def main(args=None):
     parser.add_argument('--mbzirc_path', help='Path to MBZIRC direcotry')
 
     parser.add_argument('--depth', help='Resnet depth, must be one of 18, 34, 50, 101, 152', type=int, default=50)
-    parser.add_argument('--epochs', help='Number of epochs', type=int, default=100)
+    parser.add_argument('--epochs', help='Number of epochs', type=int, default=50)
 
     parser = parser.parse_args(args)
 
@@ -137,6 +137,7 @@ def main(args=None):
                 else:
                     classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
                     
+                # Should plot images somewhere here 
                 classification_loss = classification_loss.mean()
                 regression_loss = regression_loss.mean()
 
@@ -177,13 +178,17 @@ def main(args=None):
 
             mAP = csv_eval.evaluate(dataset_val, retinanet)
 
+        # Should add evaluation!
+        
+        
+
         scheduler.step(np.mean(epoch_loss))
 
-        torch.save(retinanet.module, '{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
+        torch.save(retinanet.module, '/models/{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
 
     retinanet.eval()
 
-    torch.save(retinanet, 'model_final.pt')
+    torch.save(retinanet, '/models/model_final.pt')
 
 
 if __name__ == '__main__':
