@@ -309,12 +309,13 @@ class MBZIRCDataset(Dataset):
         self.image_dir = image_dir 
         self.mode = mode
         self.transforms = transforms
-        self._num_classes = len(list(set(dataframe['id'])))
+        self._num_classes = len(list(set(dataframe['id']))) + 1
+#        print("self._num_classes: ", self._num_classes)
         self.labels = {'1': 'LargeAmmoCanHandles', 
                        '2': 'LargeCrateHandles', 
                        '3': 'LargeDryBoxHandles',
                        '4': 'SmallBlueBox', 
-                       '5': 'SmallDryBagHandle,'}
+                       '5': 'SmallDryBagHandle'}
 
     def __getitem__(self, index: int):
 
@@ -326,15 +327,26 @@ class MBZIRCDataset(Dataset):
         image = cv2.imread(f'{self.image_dir}/images/{image_id}', cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
         image /= 255
-
+#        print("records.shape", records.shape)
+#        print("records: ", records)
         if self.mode == "train" or self.mode == "valid":
-
+            print("records id:", records[['id']].values)
             # Converting xmin, ymin, w, h to x1, y1, x2, y2
             boxes = np.zeros((records.shape[0], 5))
             boxes[:, 0:4] = records[['x', 'y', 'w', 'h']].values
             boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
             boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
-            boxes[:, 4] = records[['id']].values
+            boxes[:, 4] = records[['id']].values.ravel()
+            
+ 
+#            print("boxes[:,0].shape", boxes[:, 0].shape)
+#            print("boxes[:,1].shape", boxes[:, 1].shape)
+#            print("boxes[:,2].shape", boxes[:, 2].shape)
+#            print("boxes[:,3].shape", boxes[:, 3].shape)
+#            print("boxes[:,4].shape", boxes[:, 4].shape)
+#            print("boxes[:,4]=", boxes[:, 4])
+#            print("boxes.shape", boxes.shape)
+#            print("image_ids.shape", self.image_ids.shape[0])
             
             # Applying Transforms
             sample = {'img': image, 'annot': boxes}
