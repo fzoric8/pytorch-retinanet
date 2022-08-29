@@ -76,8 +76,8 @@ def main(args=None):
     else:
         raise ValueError('Dataset type not understood (must be csv or coco), exiting.')
 
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=2, drop_last=False)
-    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler)
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=1, drop_last=False)
+    dataloader_train = DataLoader(dataset_train, num_workers=1, collate_fn=collater, batch_sampler=sampler)
 
     if dataset_val is not None:
         sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
@@ -96,7 +96,7 @@ def main(args=None):
         retinanet = model.resnet152(num_classes=dataset_train.num_classes(), pretrained=True)
     else:
         raise ValueError('Unsupported model depth, must be one of 18, 34, 50, 101, 152')
-
+    print(retinanet.state_dict())
     use_gpu = True
 
     if use_gpu:
@@ -184,11 +184,11 @@ def main(args=None):
 
         scheduler.step(np.mean(epoch_loss))
 
-        torch.save(retinanet.module, '/models/{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
+        torch.save(retinanet.state_dict(), './models/{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
 
     retinanet.eval()
 
-    torch.save(retinanet, '/models/model_final.pt')
+    torch.save(retinanet.state_dict(), './models/model_final.pt')
 
 
 if __name__ == '__main__':

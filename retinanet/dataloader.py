@@ -330,7 +330,6 @@ class MBZIRCDataset(Dataset):
 #        print("records.shape", records.shape)
 #        print("records: ", records)
         if self.mode == "train" or self.mode == "valid":
-            print("records id:", records[['id']].values)
             # Converting xmin, ymin, w, h to x1, y1, x2, y2
             boxes = np.zeros((records.shape[0], 5))
             boxes[:, 0:4] = records[['x', 'y', 'w', 'h']].values
@@ -361,7 +360,7 @@ class MBZIRCDataset(Dataset):
             # We just need to apply transoforms and return image
             if self.transforms:
                 
-                sample = {'img' : image}
+                sample = {'img' : image} #--> added for normalizer?
                 sample = self.transforms(sample)
                 
             return sample
